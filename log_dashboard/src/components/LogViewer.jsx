@@ -30,7 +30,7 @@ export const LogViewer = () => {
   }
   return (
     <div className="h-full w-full flex flex-col ">
-      <div className="h-1/6 border-b border-solid border-border-white flex justify-center items-center flex-none">
+      {/* <div className="h-1/6 border-b border-solid border-border-white flex justify-center items-center flex-none">
         <LineChart
           xAxis={[{ data: [1, 2, 3, 5, 8, 10] }]}
           series={[
@@ -40,7 +40,7 @@ export const LogViewer = () => {
           ]}
           height={200}
         />
-      </div>
+      </div> */}
       <FilterBar></FilterBar>
       <div className="w-full h-4/6 flex flex-col items-start flex-grow px-2">
             <div className="flex w-full my-2 px-4">

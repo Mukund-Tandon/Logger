@@ -8,7 +8,7 @@ export const  Dashboard = () => {
   const dispatch = useDispatch();
 
   return (
-    <div className="w-screen h-screen flex bg-main-background ">
+    <div className="w-screen h-screen flex bg-main-background overflow-hidden">
       <SideBar></SideBar>
       
       <LogViewer></LogViewer>
