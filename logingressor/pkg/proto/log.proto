@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package log;
+
+option go_package = "logingrestor/pkg/proto";
+
+// The log service definition
+service LogService {
+  // Sends a log
+  rpc SendLog(LogRequest) returns (LogResponse) {}
+}
+
+// The request message containing the log data
+message LogRequest {
+  string level = 1;        // e.g., "info", "error", "debug"
+  string message = 2;      // Log message content
+  string resourceID = 3;   // Resource ID associated with the log
+  string timestamp = 4;    // Timestamp as string
+}
+
+// The response message
+message LogResponse {
+  bool success = 1;
+  string message = 2;
+} 

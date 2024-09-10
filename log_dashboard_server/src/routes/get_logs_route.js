@@ -2,7 +2,7 @@ const express = require('express');
 const logService = require('../services/logservice');
 const queryBuilder = require('../services/queryBuilder');
 const router = express.Router();
-
+const { executeAISearchChain } = require('../services/aiSearch/executeChain');
 
 router.get('/logs', async (req, res) => {
   
@@ -30,9 +30,27 @@ router.get('/logs/filters', async (req, res) => {
 });
 
 
-router.get('/ai_search', async (req, res) => {
-  //I will be receiving a message from the api resquest, this I am currently making this aai_search stateless, so everytime I receive a request , I gett he message send to to 
-})
+
+router.post('/ai_search', async (req, res) => {
+  try {
+    const { message } = req.body;
+    
+    if (!message) {
+      return res.status(400).json({ error: 'Message is required' });
+    }
+
+    const response = await executeAISearchChain(message);
+
+    if (response.type === 'error') {
+      return res.status(200).json({ message: response.message });
+    }
+
+    res.json(response);
+  } catch (error) {
+    console.error('Error in AI search:', error);
+    res.status(500).json({ error: 'An unexpected error occurred' });
+  }
+});
 
 function setupWebSocket(io) {
   console.log('Setting up websockets');

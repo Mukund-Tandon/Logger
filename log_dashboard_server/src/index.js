@@ -5,8 +5,8 @@ const bodyParser = require('body-parser');
 const { router, setupWebSocket } = require('./routes/get_logs_route');
 const logService = require('./services/logservice');
 const { Server } = require('socket.io');
-const dotenv = require('dotenv');
-dotenv.config();
+require('dotenv').config({ path: '../.env' });
+
 
 const app = express();
 

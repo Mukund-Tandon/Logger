@@ -9,7 +9,6 @@ import (
 )
 
 func HttpToLog(httprequest *gin.Context) (models.Log,error) {
-	// clientIP := httprequest.ClientIP()
 	var log models.Log
     requestBodyBytes, err := io.ReadAll(httprequest.Request.Body)
 	if err != nil {

@@ -8,6 +8,8 @@ services:
       - "8123:8123"
       - "9000:9000"
       - "9009:9009"
+    networks:
+      - default
     volumes:
       - clickhouse_data:/var/lib/clickhouse
 
@@ -18,6 +20,9 @@ services:
       - "8080:8080"
     depends_on:
       - clickhouse
+    networks:
+      - default
+      - kafka-network
     environment:
       - CLICKHOUSE_HOST=clickhouse
       - CLICKHOUSE_PORT=9000
@@ -26,3 +31,9 @@ services:
 
 volumes:
   clickhouse_data:
+
+networks:
+  default:
+  kafka-network:
+    external: true
+    name: kafka-network

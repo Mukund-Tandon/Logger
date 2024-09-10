@@ -45,19 +45,3 @@ func (c *HttpCollector) handleLogs(ctx *gin.Context) {
 	ctx.Status(http.StatusOK)
 }
 
-// func handleLogs(ctx *HttpCollector) (c *gin.Context) {
-//     log ,err := transformer.HttpToLog(c)
-
-// 	if err != nil {
-// 		c.AbortWithError(http.StatusBadRequest, err)
-//         return
-// 	}
-
-
-
-// 	fmt.Println(log)
-//     // Here, you can parse the log data from the request body
-//     // and send it to the log channel for further processing
-
-//     c.Status(http.StatusOK)
-// }

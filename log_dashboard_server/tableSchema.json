@@ -1,0 +1,21 @@
+{
+    "tableName" : "logs",
+    "columns" : [
+        {
+           "name": "Timestamp",
+           "type": "DateTime64(6)"
+        },
+        {
+            "name": "Level",
+            "type": "String"
+         },
+         {
+            "name": "Message",
+            "type": "String"
+         },
+         {
+            "name": "ResourceID",
+            "type": "String"
+         }
+    ]
+}
