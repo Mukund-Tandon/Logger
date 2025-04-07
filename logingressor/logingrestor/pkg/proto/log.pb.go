@@ -21,13 +21,13 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// The request message containing the log data
+// Matches the models.Log structure exactly
 type LogRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Level         string                 `protobuf:"bytes,1,opt,name=level,proto3" json:"level,omitempty"`           // e.g., "info", "error", "debug"
-	Message       string                 `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`       // Log message content
-	ResourceID    string                 `protobuf:"bytes,3,opt,name=resourceID,proto3" json:"resourceID,omitempty"` // Resource ID associated with the log
-	Timestamp     string                 `protobuf:"bytes,4,opt,name=timestamp,proto3" json:"timestamp,omitempty"`   // Timestamp as string
+	Timestamp     string                 `protobuf:"bytes,1,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	Level         string                 `protobuf:"bytes,2,opt,name=level,proto3" json:"level,omitempty"`
+	Message       string                 `protobuf:"bytes,3,opt,name=message,proto3" json:"message,omitempty"`
+	ResourceId    string                 `protobuf:"bytes,4,opt,name=resource_id,json=resourceId,proto3" json:"resource_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -62,6 +62,13 @@ func (*LogRequest) Descriptor() ([]byte, []int) {
 	return file_pkg_proto_log_proto_rawDescGZIP(), []int{0}
 }
 
+func (x *LogRequest) GetTimestamp() string {
+	if x != nil {
+		return x.Timestamp
+	}
+	return ""
+}
+
 func (x *LogRequest) GetLevel() string {
 	if x != nil {
 		return x.Level
@@ -76,21 +83,13 @@ func (x *LogRequest) GetMessage() string {
 	return ""
 }
 
-func (x *LogRequest) GetResourceID() string {
+func (x *LogRequest) GetResourceId() string {
 	if x != nil {
-		return x.ResourceID
+		return x.ResourceId
 	}
 	return ""
 }
 
-func (x *LogRequest) GetTimestamp() string {
-	if x != nil {
-		return x.Timestamp
-	}
-	return ""
-}
-
-// The response message
 type LogResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
@@ -143,25 +142,71 @@ func (x *LogResponse) GetMessage() string {
 	return ""
 }
 
+type LogBatchRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Logs          []*LogRequest          `protobuf:"bytes,1,rep,name=logs,proto3" json:"logs,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LogBatchRequest) Reset() {
+	*x = LogBatchRequest{}
+	mi := &file_pkg_proto_log_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LogBatchRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LogBatchRequest) ProtoMessage() {}
+
+func (x *LogBatchRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_pkg_proto_log_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LogBatchRequest.ProtoReflect.Descriptor instead.
+func (*LogBatchRequest) Descriptor() ([]byte, []int) {
+	return file_pkg_proto_log_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *LogBatchRequest) GetLogs() []*LogRequest {
+	if x != nil {
+		return x.Logs
+	}
+	return nil
+}
+
 var File_pkg_proto_log_proto protoreflect.FileDescriptor
 
 const file_pkg_proto_log_proto_rawDesc = "" +
 	"\n" +
-	"\x13pkg/proto/log.proto\x12\x03log\"z\n" +
+	"\x13pkg/proto/log.proto\x12\n" +
+	"logservice\"{\n" +
 	"\n" +
-	"LogRequest\x12\x14\n" +
-	"\x05level\x18\x01 \x01(\tR\x05level\x12\x18\n" +
-	"\amessage\x18\x02 \x01(\tR\amessage\x12\x1e\n" +
-	"\n" +
-	"resourceID\x18\x03 \x01(\tR\n" +
-	"resourceID\x12\x1c\n" +
-	"\ttimestamp\x18\x04 \x01(\tR\ttimestamp\"A\n" +
+	"LogRequest\x12\x1c\n" +
+	"\ttimestamp\x18\x01 \x01(\tR\ttimestamp\x12\x14\n" +
+	"\x05level\x18\x02 \x01(\tR\x05level\x12\x18\n" +
+	"\amessage\x18\x03 \x01(\tR\amessage\x12\x1f\n" +
+	"\vresource_id\x18\x04 \x01(\tR\n" +
+	"resourceId\"A\n" +
 	"\vLogResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x18\n" +
-	"\amessage\x18\x02 \x01(\tR\amessage2<\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage\"=\n" +
+	"\x0fLogBatchRequest\x12*\n" +
+	"\x04logs\x18\x01 \x03(\v2\x16.logservice.LogRequestR\x04logs2J\n" +
 	"\n" +
-	"LogService\x12.\n" +
-	"\aSendLog\x12\x0f.log.LogRequest\x1a\x10.log.LogResponse\"\x00B\x18Z\x16logingrestor/pkg/protob\x06proto3"
+	"LogService\x12<\n" +
+	"\aSendLog\x12\x16.logservice.LogRequest\x1a\x17.logservice.LogResponse\"\x00B\x18Z\x16logingrestor/pkg/protob\x06proto3"
 
 var (
 	file_pkg_proto_log_proto_rawDescOnce sync.Once
@@ -175,19 +220,21 @@ func file_pkg_proto_log_proto_rawDescGZIP() []byte {
 	return file_pkg_proto_log_proto_rawDescData
 }
 
-var file_pkg_proto_log_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_pkg_proto_log_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_pkg_proto_log_proto_goTypes = []any{
-	(*LogRequest)(nil),  // 0: log.LogRequest
-	(*LogResponse)(nil), // 1: log.LogResponse
+	(*LogRequest)(nil),      // 0: logservice.LogRequest
+	(*LogResponse)(nil),     // 1: logservice.LogResponse
+	(*LogBatchRequest)(nil), // 2: logservice.LogBatchRequest
 }
 var file_pkg_proto_log_proto_depIdxs = []int32{
-	0, // 0: log.LogService.SendLog:input_type -> log.LogRequest
-	1, // 1: log.LogService.SendLog:output_type -> log.LogResponse
-	1, // [1:2] is the sub-list for method output_type
-	0, // [0:1] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	0, // 0: logservice.LogBatchRequest.logs:type_name -> logservice.LogRequest
+	0, // 1: logservice.LogService.SendLog:input_type -> logservice.LogRequest
+	1, // 2: logservice.LogService.SendLog:output_type -> logservice.LogResponse
+	2, // [2:3] is the sub-list for method output_type
+	1, // [1:2] is the sub-list for method input_type
+	1, // [1:1] is the sub-list for extension type_name
+	1, // [1:1] is the sub-list for extension extendee
+	0, // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_pkg_proto_log_proto_init() }
@@ -201,7 +248,7 @@ func file_pkg_proto_log_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_pkg_proto_log_proto_rawDesc), len(file_pkg_proto_log_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

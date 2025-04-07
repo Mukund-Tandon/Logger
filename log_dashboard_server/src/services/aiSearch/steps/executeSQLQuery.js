@@ -9,7 +9,7 @@ async function executeSQLQueryStep(Query) {
         });
         const dataset = await result.json()
     
-        console.log(dataset);
+        // console.log(dataset);
         return dataset;
     } catch (e) {
         console.log("Error in fetching data from database", e);

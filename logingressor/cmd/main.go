@@ -1,14 +1,13 @@
 package main
 
 import (
-	// "crypto/tls"
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"sync"
 	"time"
 
-	// "logingrestor/pkg/collectors"
 	"logingrestor/pkg/buffer"
 	"logingrestor/pkg/collectors"
 	"logingrestor/pkg/metrics"
@@ -16,22 +15,26 @@ import (
 )
 
 func main() {
+	numCPU := runtime.NumCPU()
+    runtime.GOMAXPROCS(numCPU)
 
 	fmt.Println("Starting")
+	kafkaWorkers := 4
+	dbWorkers := 8
 	metricsLogPath := getEnvOrDefault("METRICS_LOG_FILE", "metrics.csv")
-    
-    ensureDirectoryExists(metricsLogPath)
-    
-    metricsLogger, err := metrics.NewMetricsLogger(metricsLogPath)
-    if err != nil {
-        fmt.Printf("Failed to initialize metrics logger: %v\n", err)
-        os.Exit(1)
-    }
-    defer metricsLogger.Close()
-    
-    loggingInterval := 5 * time.Second
-    metricsLogger.StartPeriodicLogging(loggingInterval)
-	logBatchOutputChannel, err := output.Output(metricsLogger)
+
+	ensureDirectoryExists(metricsLogPath)
+
+	metricsLogger, err := metrics.NewMetricsLogger(metricsLogPath)
+	if err != nil {
+		fmt.Printf("Failed to initialize metrics logger: %v\n", err)
+		os.Exit(1)
+	}
+	defer metricsLogger.Close()
+
+	loggingInterval := 5 * time.Second
+	metricsLogger.StartPeriodicLogging(loggingInterval)
+	logBatchOutputChannel, err := output.Output(dbWorkers, metricsLogger)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -46,12 +49,17 @@ func main() {
 	fmt.Println("Http collector created")
 
 	fmt.Println("Creating Kafka collector...")
+
+	fmt.Printf("Using %d Kafka workers and %d database workers\n", kafkaWorkers, dbWorkers)
+
+	kafkaTopic := getEnvOrDefault("KAFKA_TOPIC", "logs")
+	kafkaGroupID := getEnvOrDefault("KAFKA_GROUP_ID", "log-ingestor")
 	kafkaCollector := collectors.NewKafkaCollector(
+		[]string{"kafka-1:9092", "kafka-2:9092"},
+		kafkaTopic,
+		kafkaGroupID,
 		logChannel,
-		[]string{"kafka-1:9092", "kafka-2:9092"}, // Match your broker ports
-		"logs",
-		"logs-processor",
-		metricsLogger,
+		kafkaWorkers,
 	)
 	fmt.Println("Kafka collector created")
 
@@ -59,8 +67,7 @@ func main() {
 	grpcCollector := collectors.NewGrpcCollector(logChannel, "50051") // Using port 50051 for gRPC
 	fmt.Println("gRPC collector created")
 
-	// Start collectors
-	wg.Add(3) 
+	wg.Add(3)
 
 	go func() {
 		defer wg.Done()
@@ -91,20 +98,18 @@ func main() {
 	wg.Wait()
 }
 
-
 func getEnvOrDefault(key, defaultValue string) string {
-    if value, exists := os.LookupEnv(key); exists {
-        return value
-    }
-    return defaultValue
+	if value, exists := os.LookupEnv(key); exists {
+		return value
+	}
+	return defaultValue
 }
 
-
 func ensureDirectoryExists(filePath string) {
-    dir := filepath.Dir(filePath)
-    if dir != "." {
-        if err := os.MkdirAll(dir, 0755); err != nil {
-            fmt.Printf("Warning: Failed to create directory for metrics log: %v\n", err)
-        }
-    }
+	dir := filepath.Dir(filePath)
+	if dir != "." {
+		if err := os.MkdirAll(dir, 0755); err != nil {
+			fmt.Printf("Warning: Failed to create directory for metrics log: %v\n", err)
+		}
+	}
 }

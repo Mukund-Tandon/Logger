@@ -36,7 +36,6 @@ class KafkaMessageConsumer:
         self.consumer.close()
 
 if __name__ == "__main__":
-    # Fixed ports to match Docker Compose
     bootstrap_servers = ['localhost:29092', 'localhost:39092']
     topic_name = 'logs'
     group_id = 'logs-group-1'

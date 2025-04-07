@@ -19,16 +19,13 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	LogService_SendLog_FullMethodName = "/log.LogService/SendLog"
+	LogService_SendLog_FullMethodName = "/logservice.LogService/SendLog"
 )
 
 // LogServiceClient is the client API for LogService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-//
-// The log service definition
 type LogServiceClient interface {
-	// Sends a log
 	SendLog(ctx context.Context, in *LogRequest, opts ...grpc.CallOption) (*LogResponse, error)
 }
 
@@ -53,10 +50,7 @@ func (c *logServiceClient) SendLog(ctx context.Context, in *LogRequest, opts ...
 // LogServiceServer is the server API for LogService service.
 // All implementations must embed UnimplementedLogServiceServer
 // for forward compatibility.
-//
-// The log service definition
 type LogServiceServer interface {
-	// Sends a log
 	SendLog(context.Context, *LogRequest) (*LogResponse, error)
 	mustEmbedUnimplementedLogServiceServer()
 }
@@ -114,7 +108,7 @@ func _LogService_SendLog_Handler(srv interface{}, ctx context.Context, dec func(
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var LogService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "log.LogService",
+	ServiceName: "logservice.LogService",
 	HandlerType: (*LogServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

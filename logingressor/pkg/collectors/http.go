@@ -12,7 +12,11 @@ import (
 type HttpCollector struct{
 	logbufferChannel chan models.Log
 }
-
+func NewHTTPCollector(logbufferChannel chan models.Log) *HttpCollector {
+	return &HttpCollector{
+		logbufferChannel: logbufferChannel,
+	}
+}
 
 func (c *HttpCollector) Start() error {
 	fmt.Println("Starting HTTP Collector")
@@ -20,7 +24,6 @@ func (c *HttpCollector) Start() error {
 	router := gin.Default()
 	router.POST("/log", c.handleLogs)
 
-	// Start the HTTP server and block until it exits
 	err := router.Run("0.0.0.0:8080")
 	if err != nil {
 		fmt.Println("Error starting HTTP server:", err)
@@ -39,7 +42,6 @@ func (c *HttpCollector) handleLogs(ctx *gin.Context) {
 		return
 	}
 
-	// Send the log to the log buffer channel for further processing
 	c.logbufferChannel <- log
 
 	ctx.Status(http.StatusOK)

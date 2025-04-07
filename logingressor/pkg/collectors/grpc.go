@@ -6,7 +6,7 @@ import (
 	"logingrestor/pkg/models"
 	"logingrestor/pkg/transformers"
 	"net"
-	"sync"
+	"time"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -15,17 +15,67 @@ import (
 
 type GrpcCollector struct {
 	logbufferChannel chan models.Log
-	server           *grpc.Server
 	port             string
-	wg               sync.WaitGroup
-	cancel           context.CancelFunc
+	server           *grpc.Server
 }
+
 
 func NewGrpcCollector(logbufferChannel chan models.Log, port string) *GrpcCollector {
 	return &GrpcCollector{
 		logbufferChannel: logbufferChannel,
 		port:             port,
 	}
+}
+
+
+func (c *GrpcCollector) Start() error {
+	fmt.Println("Starting gRPC Collector on port", c.port)
+
+	listener, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%s", c.port))
+	if err != nil {
+		fmt.Println("Failed to listen:", err)
+		return err
+	}
+
+	c.server = grpc.NewServer(
+		grpc.MaxConcurrentStreams(100),
+		grpc.MaxRecvMsgSize(4 * 1024 * 1024),
+	)
+	
+	logService := &LogService{logbufferChannel: c.logbufferChannel}
+	pb.RegisterLogServiceServer(c.server, logService)
+	reflection.Register(c.server)
+
+	fmt.Println("gRPC server starting on", listener.Addr())
+	
+
+	if err := c.server.Serve(listener); err != nil {
+		fmt.Println("gRPC server stopped:", err)
+		return err
+	}
+
+	return nil
+}
+
+
+func (c *GrpcCollector) Stop() {
+	fmt.Println("Stopping gRPC Collector")
+	if c.server != nil {
+		done := make(chan struct{})
+		go func() {
+			c.server.GracefulStop()
+			close(done)
+		}()
+
+		select {
+		case <-done:
+			fmt.Println("gRPC server stopped gracefully")
+		case <-time.After(10 * time.Second):
+			fmt.Println("gRPC server shutdown timed out, forcing stop")
+			c.server.Stop()
+		}
+	}
+	fmt.Println("Stopped gRPC Collector")
 }
 
 type LogService struct {
@@ -44,49 +94,3 @@ func (s *LogService) SendLog(ctx context.Context, req *pb.LogRequest) (*pb.LogRe
 	return &pb.LogResponse{Success: true, Message: "Log received successfully"}, nil
 }
 
-
-func (c *GrpcCollector) Start() error {
-	fmt.Println("Starting gRPC Collector on port", c.port)
-
-	ctx, cancel := context.WithCancel(context.Background())
-	c.cancel = cancel
-
-	listener, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%s", c.port))
-	if err != nil {
-		fmt.Println("Failed to listen:", err)
-		return err
-	}
-
-	c.server = grpc.NewServer()
-	logService := &LogService{logbufferChannel: c.logbufferChannel}
-	pb.RegisterLogServiceServer(c.server, logService)
-	reflection.Register(c.server) // for grpcurl and other debugging tools
-
-	c.wg.Add(1)
-	go func() {
-		defer c.wg.Done()
-		fmt.Println("gRPC server starting on", listener.Addr())
-		if err := c.server.Serve(listener); err != nil {
-			select {
-			case <-ctx.Done():
-				fmt.Println("gRPC server shut down gracefully")
-			default:
-				fmt.Println("gRPC server stopped unexpectedly:", err)
-			}
-		}
-	}()
-
-	return nil
-}
-
-func (c *GrpcCollector) Stop() {
-	fmt.Println("Stopping gRPC Collector")
-	if c.server != nil {
-		c.server.GracefulStop()
-	}
-	if c.cancel != nil {
-		c.cancel()
-	}
-	c.wg.Wait()
-	fmt.Println("gRPC Collector stopped")
-} 

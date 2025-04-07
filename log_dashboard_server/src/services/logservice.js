@@ -15,8 +15,9 @@ async function getLogsToBeStreamed(lastLogTime = getDefaultLastLogTime()) {
   });
   const dataset = await result.json();
   return dataset;
-  // Your logic here
 }
+
+
 async function getLatestLogs() {
   try {
   databaseConnection = await connection.getConnection();

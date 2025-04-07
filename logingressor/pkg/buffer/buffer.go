@@ -8,7 +8,7 @@ import (
 
 func LogBuffer( logBatchOutputChannel chan models.Logbatch, metricsLogger *metrics.MetricsLogger) chan models.Log {
 	logChannel := make(chan models.Log)
-	buffer := make([]models.Log, 0, 100)
+	buffer := make([]models.Log, 0, 1000)
 	ticker := time.NewTicker(15 * time.Second)
 
 	go func() {

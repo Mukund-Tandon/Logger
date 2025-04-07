@@ -7,7 +7,6 @@ class ClickHouseConnection {
       this.password = "";
       this.database = "testdb";
   
-      // Initialize the client connection here
       this.client = ClickHouse.createClient({
         url: this.hostaddr,
         username: this.username,
@@ -15,7 +14,6 @@ class ClickHouseConnection {
         database: this.database,
       });
     }
-  //TODO: make changes in this code to make the conenction to the database when we start the application 
     async getConnection() {
       if (!this.client) {
         console.log("Connecting to ClickHouse... becuse no connection previouly made");
