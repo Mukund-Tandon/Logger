@@ -18,7 +18,7 @@ class KafkaMessageProducer:
             retries=3,
             max_in_flight_requests_per_connection=20,
             linger_ms=50, 
-            batch_size=128 * 1024, 
+            batch_size=256 * 1024, 
             compression_type='snappy'
         )
         # Metrics
@@ -105,8 +105,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Kafka log producer')
     parser.add_argument('--brokers', default='localhost:29092,localhost:39092', help='Kafka brokers')
     parser.add_argument('--topic', default='logs', help='Kafka topic name')
-    parser.add_argument('--messages', type=int, default=2000000, help='Number of messages to send')
-    parser.add_argument('--threads', type=int, default=20, help='Number of threads')
+    parser.add_argument('--messages', type=int, default=100000, help='Number of messages to send')
+    parser.add_argument('--threads', type=int, default=25, help='Number of threads')
     
     args = parser.parse_args()
     

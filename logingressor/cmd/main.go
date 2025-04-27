@@ -19,8 +19,8 @@ func main() {
     runtime.GOMAXPROCS(numCPU)
 
 	fmt.Println("Starting")
-	kafkaWorkers := 4
-	dbWorkers := 8
+	kafkaWorkers := 10
+	dbWorkers := 10
 	metricsLogPath := getEnvOrDefault("METRICS_LOG_FILE", "metrics.csv")
 
 	ensureDirectoryExists(metricsLogPath)
@@ -32,7 +32,7 @@ func main() {
 	}
 	defer metricsLogger.Close()
 
-	loggingInterval := 5 * time.Second
+	loggingInterval := 1 * time.Second
 	metricsLogger.StartPeriodicLogging(loggingInterval)
 	logBatchOutputChannel, err := output.Output(dbWorkers, metricsLogger)
 	if err != nil {

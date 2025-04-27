@@ -63,11 +63,12 @@ func (c *KafkaCollector) Start() error {
         Brokers:         c.brokers,
         Topic:           c.topic,
         GroupID:         c.groupID,
-        MinBytes:        10e3,
-        MaxBytes:        10e6,
+        MinBytes:        10e3,        
+        MaxBytes:        8e6, 
         MaxWait:         1 * time.Second,
         StartOffset:     kafka.FirstOffset,
         ReadLagInterval: -1,
+        CommitInterval: 1 * time.Second,
     }
 
     for i := 0; i < c.numWorkers; i++ {
