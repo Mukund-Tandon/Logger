@@ -2,3 +2,42 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Markdown rendering for AI chat answers (no typography plugin — style .md directly). */
+.md > *:first-child { margin-top: 0; }
+.md > *:last-child { margin-bottom: 0; }
+.md p { margin: 0.4rem 0; }
+.md strong { font-weight: 700; }
+.md em { font-style: italic; }
+.md a { color: #93c5fd; text-decoration: underline; }
+.md ul { list-style: disc; padding-left: 1.25rem; margin: 0.4rem 0; }
+.md ol { list-style: decimal; padding-left: 1.25rem; margin: 0.4rem 0; }
+.md li { margin: 0.15rem 0; }
+.md h1, .md h2, .md h3 { font-weight: 700; margin: 0.6rem 0 0.3rem; line-height: 1.25; }
+.md h1 { font-size: 1.1rem; }
+.md h2 { font-size: 1.05rem; }
+.md h3 { font-size: 1rem; }
+.md code {
+  background: rgba(255, 255, 255, 0.12);
+  padding: 0.1rem 0.3rem;
+  border-radius: 0.25rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.85em;
+}
+.md pre {
+  background: rgba(0, 0, 0, 0.35);
+  padding: 0.6rem 0.75rem;
+  border-radius: 0.4rem;
+  overflow-x: auto;
+  margin: 0.5rem 0;
+}
+.md pre code { background: none; padding: 0; }
+.md blockquote {
+  border-left: 3px solid rgba(255, 255, 255, 0.3);
+  padding-left: 0.75rem;
+  margin: 0.5rem 0;
+  opacity: 0.9;
+}
+.md table { border-collapse: collapse; margin: 0.5rem 0; width: 100%; }
+.md th, .md td { border: 1px solid rgba(255, 255, 255, 0.2); padding: 0.3rem 0.5rem; text-align: left; }
+.md th { background: rgba(255, 255, 255, 0.08); }
+

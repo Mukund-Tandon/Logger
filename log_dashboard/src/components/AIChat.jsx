@@ -1,19 +1,21 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import Markdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { addMessage } from '../features/aichat/aiChatSlice';
-import { getAiResponse } from '../features/aichat/services/aiCHatService';
+import { streamAiResponse } from '../features/aichat/services/aiCHatService';
 
 export const AIChat = () => {
   const [message, setMessage] = useState('');
   const dispatch = useDispatch();
-  const { messages, status } = useSelector((state) => state.aichat);
+  const { messages, status, activity } = useSelector((state) => state.aichat);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (message.trim()) {
-      console.log('Sending message:', message);
-      dispatch(addMessage({ message: message, userType: 'user' }));
-      dispatch(getAiResponse({ message }));
+    const text = message.trim();
+    if (text && status !== 'loading') {
+      dispatch(addMessage({ message: text, userType: 'user' }));
+      dispatch(streamAiResponse({ message: text }));
       setMessage('');
     }
   };
@@ -32,11 +34,21 @@ export const AIChat = () => {
             <div
               className={`p-3 rounded-lg max-w-[70%] ${
                 msg.userType === 'user'
-                  ? 'bg-blue-500 text-white'
+                  ? 'bg-blue-500 text-white whitespace-pre-wrap'
                   : 'bg-gray-800 text-white'
               }`}
             >
-              {msg.message}
+              {msg.userType === 'user' ? (
+                msg.message
+              ) : (
+                <div className="md text-sm leading-relaxed">
+                  <Markdown remarkPlugins={[remarkGfm]}>{msg.message}</Markdown>
+                  {/* blinking caret while this assistant message is still streaming */}
+                  {msg.streaming && (
+                    <span className="inline-block ml-0.5 animate-pulse">▍</span>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         ))}
@@ -44,7 +56,10 @@ export const AIChat = () => {
       <div className="w-full p-4">
         {status === 'loading' && (
           <div className="w-full text-left mb-2">
-            <p className="text-white text-sm">Searching ...</p>
+            <p className="text-white text-sm flex items-center gap-2">
+              <span className="inline-block w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
+              {activity || 'Thinking…'}
+            </p>
           </div>
         )}
         <div className="flex items-center flex-col">
@@ -52,13 +67,14 @@ export const AIChat = () => {
             type="text"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleSubmit(e)}
-            placeholder="Type your message..."
+            onKeyDown={(e) => e.key === 'Enter' && handleSubmit(e)}
+            placeholder="Ask about your logs…"
             className="flex-grow h-12 p-3 rounded-lg bg-gray-800 text-white border border-white focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <button
             onClick={handleSubmit}
-            className="ml-2 h-12 bg-blue-500 text-white rounded-lg px-4 focus:outline-none hover:bg-blue-600"
+            disabled={status === 'loading'}
+            className="ml-2 h-12 bg-blue-500 text-white rounded-lg px-4 focus:outline-none hover:bg-blue-600 disabled:opacity-50"
           >
             Send
           </button>

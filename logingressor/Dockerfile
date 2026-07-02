@@ -1,4 +1,3 @@
-# Stage 1: Build the Go binary
 FROM golang:1.22.3-alpine AS builder
 
 WORKDIR /app
@@ -17,8 +16,6 @@ RUN apk --no-cache add ca-certificates
 
 COPY --from=builder /app/main .
 
-# Expose port 8080 to the outside world
 EXPOSE 8080
 
-# # Command to run the executable
 ENTRYPOINT ["./main"]

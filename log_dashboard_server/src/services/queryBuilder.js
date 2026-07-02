@@ -9,11 +9,12 @@ if(end){
 }
 
 if(level){
-    query = query + `Level = '${level}' AND `;
+    // case-insensitive: stored levels are upper-case (ERROR/INFO/WARN/DEBUG)
+    query = query + `lower(Level) = lower('${level}') AND `;
 }
 
 if(containsText){
-    query = query + `Message LIKE '%${containsText}%' AND `;
+    query = query + `Message ILIKE '%${containsText}%' AND `;
 }
 
 if(resourceId){
@@ -23,6 +24,10 @@ if(resourceId){
 //n check if quey ends with AND if so remove it
 if(query.endsWith("AND ")){
     query = query.slice(0, -5);
+}
+// guard: with no filters, avoid a dangling "WHERE" (invalid SQL)
+if(query.trim() === ""){
+    query = "1=1";
 }
 return query;
 }

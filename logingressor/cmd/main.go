@@ -38,12 +38,11 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
-	logChannel := buffer.LogBuffer(logBatchOutputChannel, metricsLogger)
+	logChannel := buffer.LogBuffer(logBatchOutputChannel)
 	fmt.Println(logChannel)
 
 	var wg sync.WaitGroup
 
-	// Create collectors
 	fmt.Println("Creating Http collector...")
 	httpCollector := collectors.NewHTTPCollector(logChannel)
 	fmt.Println("Http collector created")

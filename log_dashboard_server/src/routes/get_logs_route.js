@@ -3,6 +3,8 @@ const logService = require('../services/logservice');
 const queryBuilder = require('../services/queryBuilder');
 const router = express.Router();
 const { executeAISearchChain } = require('../services/aiSearch/executeChain');
+const { executeAISearchV2, executeAISearchV2Stream } = require('../services/aiSearch/v2');
+const { formatSSE } = require('../services/aiSearch/v2/sseFormat');
 
 router.get('/logs', async (req, res) => {
   
@@ -49,6 +51,48 @@ router.post('/ai_search', async (req, res) => {
   } catch (error) {
     console.error('Error in AI search:', error);
     res.status(500).json({ error: 'An unexpected error occurred' });
+  }
+});
+
+// v2 (additive) — agentic AI search, alongside the frozen v1 /ai_search handler above.
+router.post('/ai_search/v2', async (req, res) => {
+  try {
+    const { message, history, stream } = req.body || {};
+
+    if (!message) {
+      return res.status(400).json({ error: 'Message is required' });
+    }
+
+    const wantsStream =
+      stream === true ||
+      req.query.stream === '1' ||
+      (req.headers.accept || '').includes('text/event-stream');
+
+    if (wantsStream) {
+      // Stream the investigation as Server-Sent Events (Phase 1.4).
+      res.setHeader('Content-Type', 'text/event-stream');
+      res.setHeader('Cache-Control', 'no-cache');
+      res.setHeader('Connection', 'keep-alive');
+      if (typeof res.flushHeaders === 'function') res.flushHeaders();
+      try {
+        for await (const event of executeAISearchV2Stream(message, history)) {
+          res.write(formatSSE(event));
+        }
+      } catch (streamErr) {
+        console.error('Error in AI search v2 stream:', streamErr);
+        res.write(formatSSE({ type: 'error', message: 'An unexpected error occurred' }));
+      }
+      res.write(formatSSE({ type: 'done' }));
+      return res.end();
+    }
+
+    const response = await executeAISearchV2(message, history);
+    res.status(200).json(response);
+  } catch (error) {
+    console.error('Error in AI search v2:', error);
+    if (!res.headersSent) {
+      res.status(500).json({ error: 'An unexpected error occurred' });
+    }
   }
 });
 

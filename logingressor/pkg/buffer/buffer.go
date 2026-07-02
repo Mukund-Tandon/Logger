@@ -2,11 +2,10 @@ package buffer
 
 import (
 	"logingrestor/pkg/models"
-	"logingrestor/pkg/metrics"
 	"time"
 )
 
-func LogBuffer( logBatchOutputChannel chan models.Logbatch, metricsLogger *metrics.MetricsLogger) chan models.Log {
+func LogBuffer( logBatchOutputChannel chan models.Logbatch) chan models.Log {
 	logChannel := make(chan models.Log)
 	buffer := make([]models.Log, 0, 600000)
 	ticker := time.NewTicker(15 * time.Second)

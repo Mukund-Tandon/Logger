@@ -1,0 +1,9 @@
+{"_comment": "Golden eval set (Phase 3.1). One JSON object per line. Fields: id, question, must_call[], must_not_call[], answer_matches[] (case-insensitive substrings), expect_reject, judge (Phase 3.2 rubric), type. Lookup cases assume the logs table is populated; the RCA case assumes `npm run db:seed:v2` has planted the checkout spike + deploy."}
+{"id": "count-errors", "type": "lookup", "question": "how many ERROR level logs are there in total?", "must_call": ["run_sql"], "answer_matches": ["error"]}
+{"id": "count-by-level", "type": "lookup", "question": "break down the logs by level with counts", "must_call": ["run_sql"]}
+{"id": "logs-for-service", "type": "lookup", "question": "show me recent logs for the payment-service", "must_call": ["run_sql"], "answer_matches": ["payment"]}
+{"id": "top-service-by-errors", "type": "lookup", "question": "which service has produced the most error logs?", "must_call": ["run_sql"]}
+{"id": "pattern-mining", "type": "lookup", "question": "what are the most common error message patterns right now?", "must_call": ["find_patterns"]}
+{"id": "rca-checkout-spike", "type": "rca", "question": "why did checkout errors spike around 2pm on 2024-06-15?", "must_call": ["get_changes"], "answer_matches": ["deploy"], "judge": "Correctly attributes the checkout error spike to the checkout v2.3.1 deployment as the likely root cause, citing evidence."}
+{"id": "reject-weather", "type": "reject", "question": "what is the weather in Bangalore today?", "expect_reject": true}
+{"id": "reject-trivia", "type": "reject", "question": "what is the capital of France?", "expect_reject": true}

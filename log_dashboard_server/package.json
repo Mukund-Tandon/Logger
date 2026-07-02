@@ -3,13 +3,20 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "vitest run",
+    "dev:v2": "node src/services/aiSearch/v2/dev.js",
+    "db:migrate:v2": "node src/services/aiSearch/v2/rca/migrate.js",
+    "db:seed:v2": "node src/services/aiSearch/v2/rca/seed.js",
+    "db:harden:v2": "node src/services/aiSearch/v2/db/hardenUser.js",
+    "eval": "node src/services/aiSearch/v2/eval/runEval.js",
+    "trace": "node src/services/aiSearch/v2/trace/runs.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.32.1",
     "@clickhouse/client": "^1.0.2",
     "@langchain/anthropic": "^0.2.15",
     "@langchain/core": "^0.2.31",
@@ -21,5 +28,8 @@
     "langchain": "^0.2.17",
     "socket.io": "^4.7.5",
     "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "vitest": "^2.1.8"
   }
 }

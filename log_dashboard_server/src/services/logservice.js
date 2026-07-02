@@ -68,7 +68,8 @@ async  function getLogsOfSpecificDate(date){
 
 async function getLogsByFilters(filterQuery) {
   databaseConnectin = await connection.getConnection();
-  const query = `SELECT * FROM testdb.logs WHERE ${filterQuery}`
+  // Bound the result so a broad/empty filter can't dump the whole table.
+  const query = `SELECT * FROM testdb.logs WHERE ${filterQuery} ORDER BY Timestamp DESC LIMIT 1000`
   try {
     const result = await databaseConnectin.query({
       query: query,
@@ -76,13 +77,13 @@ async function getLogsByFilters(filterQuery) {
     });
     const dataset = await result.json()
 
-    console.log(dataset);
+    console.log(`getLogsByFilters returned ${dataset.length} rows`);
     return dataset;
 
   }
   catch (e) {
     console.log("Error in fetching data from database", e);
-    throw error
+    throw e
   }
 }
 async  function getLogsOfDateRange(startTime,endTime){
