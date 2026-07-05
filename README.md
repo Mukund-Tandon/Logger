@@ -1,6 +1,6 @@
 # Logger: Centralized Logging Infrastructure with AI-Assisted Querying
 
-Logger is a comprehensive infrastructure for collecting, storing, and analyzing logs from various applications in a centralized location. It offers powerful querying capabilities and an AI-assisted interface for easy log navigation and analysis.
+Logger collects logs from many sources at high throughput, stores them in ClickHouse, and lets you investigate them in plain English — not just search, but an agentic AI investigator that queries your logs, mines recurring patterns, and root-causes incidents.
 
 ![Logger Architecture](https://github.com/user-attachments/assets/73ddcbb1-d323-44b1-9a17-10d10f8cfe0a)
 
@@ -54,6 +54,27 @@ The Log Server acts as an intermediary between the stored logs and the user inte
 - AI-assisted natural language processing for log analysis
 - Advanced filtering and search capabilities
 - Real-time log streaming
+
+### AI Investigation Agent
+  <img width="820" height="900" alt="agent-flow" src="https://github.com/user-attachments/assets/e93d8a00-3cb5-4d55-85f4-6ed4306425a8" />
+
+
+**Tools the agent can call**
+ 
+| Tool | Purpose |
+|------|---------|
+| `run_sql` | Run one read-only ClickHouse query (SELECT/SHOW/DESCRIBE/EXPLAIN) |
+| `find_patterns` | Cluster log messages into recurring templates to spot what spiked |
+| `get_changes` | Fetch deploys/config changes in a window to correlate with anomalies |
+
+**Engineering choices**
+ 
+- **Provider-agnostic** — all model calls go through one internal interface; Anthropic, OpenAI, or the local Claude CLI are swappable via config
+- **Read-only by design** — a restricted DB user + query validation + row/time caps; the agent can never write
+- **Self-healing queries** — on a SQL error the agent gets the error back and corrects itself
+- **Eval + tracing** — a golden-set eval harness gates prompt/model changes; every run is traced (tools, tokens, cost, latency)
+
+  
 
 ### 4. Dashboard
 
